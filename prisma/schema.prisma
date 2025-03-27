@@ -10,33 +10,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
-  password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Financial data relationships
-  expenses      Expense[]
-  incomes       Income[]
-  budgets       Budget[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   accounts      Account[]
+  sessions      Session[]
+  expenses      Expense[]
+  budgets       Budget[]
   subscriptions Subscription[]
-  investments   Investment[]
   loans         Loan[]
-  categories    Category[] // Custom categories created by the user
-  taxItems      TaxItem[]
-
-  // Auth relationships
-  sessions Session[]
 }
 
-// Auth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -45,308 +53,74 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Expense model for tracking all spending
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model Expense {
   id          String   @id @default(cuid())
+  userId      String
   amount      Float
-  description String
+  category    String
+  description String?
   date        DateTime
-  receiptUrl  String? // URL to stored receipt image
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-  accountId  String?
-  account    Account? @relation(fields: [accountId], references: [id])
-  taxItemId  String?
-  taxItem    TaxItem? @relation(fields: [taxItemId], references: [id])
-
-  // Metadata from AI extraction
-  metadata Json? // Store extracted data or additional info
-  tags     String[] // For custom tagging
-
-  @@index([userId, date])
-  @@index([categoryId])
-}
-
-// Income model
-model Income {
-  id          String   @id @default(cuid())
-  amount      Float
-  description String
-  date        DateTime
-  recurring   Boolean  @default(false)
-  frequency   String? // monthly, bi-weekly, etc.
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-  accountId  String?
-  account    Account? @relation(fields: [accountId], references: [id])
-
-  @@index([userId, date])
-}
-
-// Budget model
-model Budget {
-  id        String   @id @default(cuid())
-  amount    Float
-  name      String
-  startDate DateTime
-  endDate   DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-
-  @@index([userId, startDate, endDate])
-}
-
-// Bank/Financial Account model
-model Account {
-  id              String      @id @default(cuid())
-  name            String
-  type            AccountType // checking, savings, credit, investment
-  balance         Float
-  currency        String      @default("USD")
-  accountNumber   String? // Optional, might not want to store this
-  institutionName String?
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  // Relations
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expenses      Expense[]
-  incomes       Income[]
-  subscriptions Subscription[]
-  investments   Investment[]
-  loans         Loan[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([category])
+  @@index([date])
 }
 
-enum AccountType {
-  CHECKING
-  SAVINGS
-  CREDIT
-  INVESTMENT
-  LOAN
-  CASH
-  OTHER
+model Budget {
+  id           String   @id @default(cuid())
+  userId       String
+  category     String
+  limitAmount  Float
+  currentSpend Float    @default(0)
+  month        Int
+  year         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, month, year])
+  @@index([userId])
+  @@index([category])
+  @@index([month, year])
 }
 
-// Subscription model
 model Subscription {
-  id              String       @id @default(cuid())
+  id              String   @id @default(cuid())
+  userId          String
   name            String
   amount          Float
-  billingCycle    BillingCycle
-  startDate       DateTime
-  endDate         DateTime?
+  cycle           String // "monthly" or "yearly"
   nextBillingDate DateTime
-  autoRenew       Boolean      @default(true)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-
-  // Relations
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-  accountId  String?
-  account    Account? @relation(fields: [accountId], references: [id])
-
-  @@index([userId, nextBillingDate])
-}
-
-enum BillingCycle {
-  DAILY
-  WEEKLY
-  BIWEEKLY
-  MONTHLY
-  QUARTERLY
-  BIANNUALLY
-  ANNUALLY
-}
-
-// Investment model
-model Investment {
-  id           String         @id @default(cuid())
-  name         String
-  type         InvestmentType
-  amount       Float // Initial investment amount
-  currentValue Float // Current value of investment
-  purchaseDate DateTime
-  notes        String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-
-  // Relations
-  userId       String
-  user         User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountId    String?
-  account      Account?                @relation(fields: [accountId], references: [id])
-  transactions InvestmentTransaction[]
-
-  @@index([userId])
-}
-
-enum InvestmentType {
-  STOCK
-  BOND
-  ETF
-  MUTUAL_FUND
-  CRYPTO
-  REAL_ESTATE
-  RETIREMENT
-  OTHER
-}
-
-// Investment Transaction model
-model InvestmentTransaction {
-  id        String          @id @default(cuid())
-  type      TransactionType
-  amount    Float
-  price     Float
-  date      DateTime
-  notes     String?
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-
-  // Relations
-  investmentId String
-  investment   Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
-
-  @@index([investmentId, date])
-}
-
-enum TransactionType {
-  BUY
-  SELL
-  DIVIDEND
-  INTEREST
-  FEE
-  TRANSFER
-  OTHER
-}
-
-// Loan model
-model Loan {
-  id              String   @id @default(cuid())
-  name            String
-  type            LoanType
-  principalAmount Float
-  remainingAmount Float
-  interestRate    Float
-  startDate       DateTime
-  endDate         DateTime
-  paymentAmount   Float // Regular payment amount
-  paymentDay      Int // Day of month for payment
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
-  // Relations
-  userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountId String?
-  account   Account?      @relation(fields: [accountId], references: [id])
-  payments  LoanPayment[]
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([nextBillingDate])
 }
 
-enum LoanType {
-  MORTGAGE
-  AUTO
-  STUDENT
-  PERSONAL
-  CREDIT_CARD
-  OTHER
-}
+model Loan {
+  id           String   @id @default(cuid())
+  userId       String
+  lender       String
+  amount       Float
+  interestRate Float
+  dueDate      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-// Loan Payment model
-model LoanPayment {
-  id            String   @id @default(cuid())
-  amount        Float
-  date          DateTime
-  principalPaid Float
-  interestPaid  Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  loanId String
-  loan   Loan   @relation(fields: [loanId], references: [id], onDelete: Cascade)
-
-  @@index([loanId, date])
-}
-
-// Category model
-model Category {
-  id        String   @id @default(cuid())
-  name      String
-  icon      String? // Icon identifier
-  color     String? // Color code
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parentId      String?
-  parent        Category?      @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children      Category[]     @relation("CategoryHierarchy")
-  expenses      Expense[]
-  incomes       Income[]
-  budgets       Budget[]
-  subscriptions Subscription[]
-
-  @@unique([userId, name])
   @@index([userId])
-}
-
-// Tax Item model for tracking tax-related expenses and income
-model TaxItem {
-  id           String      @id @default(cuid())
-  name         String
-  description  String?
-  taxYear      Int
-  isDeductible Boolean     @default(true)
-  category     TaxCategory
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  // Relations
-  userId   String
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expenses Expense[]
-
-  @@index([userId, taxYear])
-}
-
-enum TaxCategory {
-  BUSINESS_EXPENSE
-  MEDICAL
-  EDUCATION
-  HOUSING
-  CHARITABLE
-  INVESTMENT
-  RETIREMENT
-  DEPENDENT
-  OTHER
+  @@index([dueDate])
 }
