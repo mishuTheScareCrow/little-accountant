@@ -1,39 +1,57 @@
-import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import Google from "next-auth/providers/google";
-import { prisma } from "@/lib/prisma";
-import { DefaultSession } from "next-auth";
+import NextAuth, { User } from "next-auth";
+import { compare } from "bcryptjs";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { db } from "@/database/drizzle";
+import { users } from "@/database/schema";
+import { eq } from "drizzle-orm";
 
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user?: {
-      id: string;
-    } & DefaultSession["user"];
-  }
-}
-
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
-  adapter: PrismaAdapter(prisma),
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  session: {
+    strategy: "jwt",
+  },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    CredentialsProvider({
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        const user = await db.select().from(users).where(eq(users.email, credentials.email.toString())).limit(1);
+
+        if (user.length === 0) return null;
+
+        const isPasswordValid = await compare(credentials.password.toString(), user[0].password);
+
+        if (!isPasswordValid) return null;
+
+        return {
+          id: user[0].id.toString(),
+          email: user[0].email,
+          firstName: user[0].firstName,
+          lastName: user[0].lastName,
+        } as User;
+      },
     }),
   ],
+  pages: {
+    signIn: "/sign-in",
+  },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
       }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+      }
+
       return session;
     },
-  },
-  pages: {
-    signIn: "/login",
   },
 });
