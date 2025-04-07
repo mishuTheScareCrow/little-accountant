@@ -11,10 +11,13 @@ export const users = pgTable("users", {
     .primaryKey()
     .notNull()
     .$defaultFn(() => createId()),
-  name: varchar("name"),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
   email: varchar("email").unique(),
   emailVerified: timestamp("email_verified"),
   image: varchar("image"),
+  password: varchar("password"),
+  confirmPassword: varchar("confirm_password"),
 });
 
 export const accounts = pgTable(

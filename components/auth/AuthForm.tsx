@@ -1,133 +1,113 @@
 "use client";
+
+// import { z } from "zod";
+import { ZodType } from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DefaultValues, FieldValues, Path, SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { FIELD_NAMES } from "@/constants";
-import { FIELD_TYPES } from "@/constants";
-
-// import { signIn } from "next-auth/react";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from "@/components/ui/card";
+import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface Props<T extends FieldValues> {
-  schema: z.ZodType<T>;
+  schema: ZodType<T>;
   defaultValues: T;
   onSubmit: (data: T) => Promise<{ success: boolean; error?: string }>;
   type: "LOGIN" | "REGISTER";
 }
 
 const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit }: Props<T>) => {
-  const isLogin = type === "LOGIN";
+  const router = useRouter();
+
+  const isSignIn = type === "LOGIN";
+
   const form: UseFormReturn<T> = useForm({
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>,
   });
 
-  const handleSubmit: SubmitHandler<T> = async (data) => {};
+  const handleSubmit: SubmitHandler<T> = async (data) => {
+    console.log("Submitting Data:", data);
 
-  //   const router = useRouter();
-  // const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const result = await onSubmit(data);
 
-  // const loginWithGoogle = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     await signIn("google");
-  //   } catch (error) {
-  //     console.error("Login failed:", error);
-  //   } finally {
-  //     setIsLoading(false);
+    console.log("Submission Result:", result); // Debugging
+
+    if (!result || typeof result.success === "undefined") {
+      console.error("Invalid response from onSubmit:", result);
+      toast("Unexpected error occurred.");
+      return;
+    }
+
+    if (result.success) {
+      toast(`${isSignIn ? "You have successfully logged in." : "You have successfully registered."}`);
+      router.push("/");
+    } else {
+      toast(result.error || "An error occurred.");
+    }
+  };
+
+  // const handleSubmit: SubmitHandler<T> = async (data) => {
+  //   const result = await onSubmit(data);
+
+  //   if (result.success) {
+  //     toast(`${isSignIn ? "You have successfully logged in." : "You have successfully registered."}`);
+
+  //     router.push("/");
+  //   } else {
+  //     toast(`${isSignIn ? "Error while logging in." : "Error while registering."}`);
   //   }
   // };
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl text-white">{isLogin ? "Welcome Back to Little Accountant!" : "Register at Little Accountant!"}</h2>
+      <h1 className="text-2xl font-semibold text-white">
+        {isSignIn ? "Welcome back to Little Accountant" : "Register with Little Accountant"}
+      </h1>
+      <p className="text-light-100">
+        {isSignIn
+          ? "Access the vast collection of resources, and stay updated"
+          : "Please complete all fields and upload a valid university ID to gain access to the library"}
+      </p>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 w-full">
-          {Object.keys(defaultValues).map((field) => {
-            return (
-              <FormField
-                key={field}
-                control={form.control}
-                name={field as Path<T>}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="capitalize">{FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}</FormLabel>
-                    <FormControl>
-                      <Input type={FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]} {...field} className="form-input" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            );
-          })}
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
+          {Object.keys(defaultValues).map((field) => (
+            <FormField
+              key={field}
+              control={form.control}
+              name={field as Path<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="capitalize">{FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}</FormLabel>
+                  <FormControl>
+                    <Input required type={FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]} {...field} className="form-input" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
 
           <Button type="submit" className="form-btn">
-            {isLogin ? "Login" : "Register"}
+            {isSignIn ? "Login" : "Register"}
           </Button>
         </form>
       </Form>
-      <p className="flex justify-center text-sm text-center text-muted-foreground">
-        {isLogin ? "New to Little Accountant? " : "Already have an account? "}
-        <Link href={isLogin ? "/register" : "/login"} className="text-primary hover:underline">
-          {isLogin ? "Register" : "Login"}
+
+      <p className="text-center text-base font-medium">
+        {isSignIn ? "New to Little Accountant? " : "Already have an account? "}
+
+        <Link href={isSignIn ? "/register" : "/login"} className="font-bold text-primary">
+          {isSignIn ? "Create an account" : "Login"}
         </Link>
       </p>
     </div>
-
-    // <Card>
-    //   <CardContent className="pt-6">
-    //     <div className="flex flex-col space-y-4">
-    //       <Button variant="outline" type="button" disabled={isLoading} onClick={loginWithGoogle} className="w-full">
-    //         {isLoading ? (
-    //           <span className="flex items-center justify-center">
-    //             <svg
-    //               className="mr-2 h-4 w-4 animate-spin"
-    //               xmlns="http://www.w3.org/2000/svg"
-    //               width="24"
-    //               height="24"
-    //               viewBox="0 0 24 24"
-    //               fill="none"
-    //               stroke="currentColor"
-    //               strokeWidth="2"
-    //               strokeLinecap="round"
-    //               strokeLinejoin="round"
-    //             >
-    //               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    //             </svg>
-    //             Loading...
-    //           </span>
-    //         ) : (
-    //           <span className="flex items-center justify-center">
-    //             <svg
-    //               className="mr-2 h-4 w-4"
-    //               xmlns="http://www.w3.org/2000/svg"
-    //               width="24"
-    //               height="24"
-    //               viewBox="0 0 24 24"
-    //               fill="none"
-    //               stroke="currentColor"
-    //               strokeWidth="2"
-    //               strokeLinecap="round"
-    //               strokeLinejoin="round"
-    //             >
-    //               <circle cx="12" cy="12" r="10" />
-    //               <path d="M17.13 14.93a5 5 0 1 0-10.25 0" />
-    //               <path d="M12 20v-6" />
-    //             </svg>
-    //             Sign in with Google
-    //           </span>
-    //         )}
-    //       </Button>
-    //     </div>
-    //   </CardContent>
-    // </Card>
   );
 };
-
 export default AuthForm;
+
+//New
