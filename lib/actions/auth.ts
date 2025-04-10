@@ -6,7 +6,9 @@ import { users } from "@/database/schema";
 import { hash } from "bcryptjs";
 import { signIn } from "@/auth";
 
-export const signInWithCredentials = async (params: Pick<AuthCredentials, "email" | "password">) => {
+export const signInWithCredentials = async (
+  params: Pick<AuthCredentials, "email" | "password">
+) => {
   const { email, password } = params;
 
   try {
@@ -30,7 +32,11 @@ export const signInWithCredentials = async (params: Pick<AuthCredentials, "email
 export const signUp = async (params: AuthCredentials) => {
   const { firstName, lastName, email, password } = params;
 
-  const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const existingUser = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
 
   if (existingUser.length > 0) {
     return { success: false, error: "User already exists" };

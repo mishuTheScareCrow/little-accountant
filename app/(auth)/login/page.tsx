@@ -5,7 +5,14 @@ import { signInWithCredentials } from "@/lib/actions/auth";
 import { loginSchema } from "@/lib/validations";
 
 export default function Page() {
-  return <AuthForm type="LOGIN" schema={loginSchema} defaultValues={{ email: "", password: "" }} onSubmit={signInWithCredentials} />;
+  return (
+    <AuthForm
+      type="LOGIN"
+      schema={loginSchema}
+      defaultValues={{ email: "", password: "" }}
+      onSubmit={signInWithCredentials}
+    />
+  );
 }
 
 // src/app/(auth)/sign-in/page.tsx
