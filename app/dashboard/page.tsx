@@ -10,6 +10,7 @@ import { eq, and, gte, lte, sql } from "drizzle-orm";
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,6 +18,9 @@ import { Overview } from "@/components/overview";
 import { RecentExpenses } from "@/components/recent-expenses";
 import { BudgetProgress } from "@/components/budget-progress";
 import { UpcomingPayments } from "@/components/upcoming-payments";
+import { Badge } from "@/components/ui/badge";
+import { TrendingUpIcon } from "lucide-react";
+import SpendingSummaryCard from "@/components/spending-summary";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -161,46 +165,85 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-4 p-4">
       {/* Top cards: Expenses, Budget, Remaining, and Usage */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
+        <SpendingSummaryCard />
+
+        <Card className="gap-4">
+          <CardHeader className="relative">
+            <CardTitle className="font-normal">
               Total Expenses
             </CardTitle>
+            <div className="absolute right-4 top-0">
+              <Badge
+                variant="outline"
+                className="flex gap-1 rounded-lg text-xs"
+              >
+                <TrendingUpIcon className="size-3" />
+                +12.5%
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tabular-nums">
               $
               {totalExpenses[0]?.amount
                 ? totalExpenses[0].amount.toFixed(2)
                 : "0.00"}
             </div>
           </CardContent>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="text-muted-foreground">
+              Increased +12.5% than last month
+            </div>
+          </CardFooter>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Budget
+        <Card className="gap-4">
+          <CardHeader className="relative">
+            <CardTitle className="font-normal">
+              <p>Total Budget</p>
+              <div className="absolute right-4 top-0">
+                <Badge
+                  variant="outline"
+                  className="flex gap-1 rounded-lg text-xs"
+                >
+                  <TrendingUpIcon className="size-3" />
+                  +12.5%
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tabular-nums">
               $
               {totalBudget[0]?.limitAmount
                 ? totalBudget[0].limitAmount.toFixed(2)
                 : "0.00"}
             </div>
           </CardContent>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="text-muted-foreground">
+              Increased +12.5% than last month
+            </div>
+          </CardFooter>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Remaining Budget
+        <Card className="gap-4">
+          <CardHeader className="relative">
+            <CardTitle className="font-normal">
+              <p>Remaining Budget</p>
+              <div className="absolute right-4 top-0">
+                <Badge
+                  variant="outline"
+                  className="flex gap-1 rounded-lg text-xs"
+                >
+                  <TrendingUpIcon className="size-3" />
+                  +12.5%
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tabular-nums">
               $
               {(
                 (totalBudget[0]?.limitAmount || 0) -
@@ -208,16 +251,30 @@ export default async function DashboardPage() {
               ).toFixed(2)}
             </div>
           </CardContent>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="text-muted-foreground">
+              Increased +12.5% than last month
+            </div>
+          </CardFooter>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Budget Usage
+        <Card className="gap-4">
+          <CardHeader className="relative">
+            <CardTitle className="font-normal">
+              <p>Budget Budget</p>
+              <div className="absolute right-4 top-0">
+                <Badge
+                  variant="outline"
+                  className="flex gap-1 rounded-lg text-xs"
+                >
+                  <TrendingUpIcon className="size-3" />
+                  +12.5%
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tabular-nums">
               {totalBudget[0]?.limitAmount
                 ? Math.round(
                     ((totalExpenses[0]?.amount || 0) /
@@ -228,6 +285,11 @@ export default async function DashboardPage() {
               %
             </div>
           </CardContent>
+          <CardFooter className="flex-col items-start gap-1 text-sm">
+            <div className="text-muted-foreground">
+              Increased +12.5% than last month
+            </div>
+          </CardFooter>
         </Card>
       </div>
 
