@@ -1,34 +1,99 @@
 "use client";
+import { TrendingUp } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  CartesianGrid,
+} from "recharts";
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+const chartData = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+];
 
-interface OverviewProps {
-  data: {
-    name: string;
-    total: number;
-  }[];
-}
+const chartConfig = {
+  total: {
+    label: "Total",
+    color: "hsl(var(--chart-1))",
+  },
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig;
 
-export function Overview({ data }: OverviewProps) {
+export function Overview() {
   return (
-    <ChartContainer
-      config={{
-        total: {
-          label: "Amount",
-          color: "hsl(var(--chart-1))",
-        },
-      }}
-      className="h-[300px]"
-    >
+    <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
-          <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-          <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
-        </BarChart>
+        <Card>
+          <CardHeader>
+            <CardTitle>Bar Chart - Multiple</CardTitle>
+            <CardDescription>January - June 2024</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig}>
+              <BarChart accessibilityLayer data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 3)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dashed" />}
+                />
+                <Bar
+                  dataKey="desktop"
+                  fill="var(--color-desktop)"
+                  radius={4}
+                />
+                <Bar
+                  dataKey="mobile"
+                  fill="var(--color-mobile)"
+                  radius={4}
+                />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+          <CardFooter className="flex-col items-start gap-2 text-sm">
+            <div className="flex gap-2 font-medium leading-none">
+              Trending up by 5.2% this month{" "}
+              <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Showing total visitors for the last 6 months
+            </div>
+          </CardFooter>
+        </Card>
       </ResponsiveContainer>
-    </ChartContainer>
+    </>
   );
 }
