@@ -18,8 +18,8 @@ import {
 
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
-import { NavUser } from "@/components/nav-user";
 import { NavSecondary } from "@/components/nav-secondary";
+import { useSession } from "next-auth/react";
 
 import {
   Sidebar,
@@ -32,13 +32,10 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
+import Link from "next/link";
+import { UserNav } from "./user-nav";
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
       name: "Acme Inc",
@@ -177,13 +174,15 @@ const data = {
 export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+  const user = session?.user;
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
@@ -193,7 +192,7 @@ export function AppSidebar({
                   </span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -205,7 +204,7 @@ export function AppSidebar({
         <ModeToggle />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <UserNav user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

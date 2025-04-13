@@ -5,6 +5,9 @@ export const createBudgetSchema = z.object({
   limitAmount: z.coerce
     .number()
     .positive({ message: "Limit must be positive" }),
+  currentSpend: z.coerce
+    .number()
+    .positive({ message: "Current spend must be positive" }),
   month: z.coerce.number().int().min(1).max(12), // 1-12
   year: z.coerce
     .number()
