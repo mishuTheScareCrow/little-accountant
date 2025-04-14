@@ -79,7 +79,7 @@ const AuthForm = <T extends FieldValues>({
             : "You have successfully registered."
         }`
       );
-      router.push("/");
+      router.push("/dashboard");
     } else {
       toast(result.error || "An error occurred.");
     }

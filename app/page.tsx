@@ -1,138 +1,169 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
+"use client";
 
-export default function Home() {
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { DollarSign, PieChart, TrendingUp, Lock } from "lucide-react";
+import Lottie from "lottie-react";
+import animationData from "@/animations/landing-animation.json"; // Placeholder: Add your Lottie JSON file
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
+export default function LandingPage() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-2 font-semibold">
-            <span className="text-xl">Little Accountant</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ModeToggle />
-            <Link href="/login">
-              <Button>Login</Button>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-900">
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 md:py-24 text-center">
+        <div className="flex flex-col items-center gap-6">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+            Take Control with{" "}
+            <span className="text-blue-600">Little Accountant</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl">
+            Simplify your finances, track expenses, and plan for the
+            future with an app that’s as smart as you are.
+          </p>
+          {isMounted && (
+            <div className="w-64 h-64 md:w-80 md:h-80">
+              <Lottie animationData={animationData} loop={true} />
+            </div>
+          )}
+          <Button
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg"
+            asChild
+          >
+            <Link href="/register">Get Started</Link>
+          </Button>
         </div>
-      </header>
-      <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                  Manage Your Personal Finances with Ease
-                </h1>
-                <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Track expenses, set budgets, and manage subscriptions all in one place.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Link href="/login">
-                  <Button size="lg">Get Started</Button>
-                </Link>
-                <Link href="#features">
-                  <Button size="lg" variant="outline">
-                    Learn More
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Features</h2>
-                <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Everything you need to manage your personal finances.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="flex flex-col items-center space-y-2 rounded-lg border p-6">
-                  <div className="rounded-full bg-primary p-2 text-primary-foreground">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"></path>
-                      <line x1="2" y1="20" x2="2" y2="20"></line>
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold">Expense Tracking</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Track your expenses by category and date.</p>
-                </div>
-                <div className="flex flex-col items-center space-y-2 rounded-lg border p-6">
-                  <div className="rounded-full bg-primary p-2 text-primary-foreground">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold">Budget Management</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Set monthly budgets and track your spending.</p>
-                </div>
-                <div className="flex flex-col items-center space-y-2 rounded-lg border p-6">
-                  <div className="rounded-full bg-primary p-2 text-primary-foreground">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
-                    >
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold">Subscription Tracking</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Keep track of your recurring payments.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      <footer className="w-full border-t py-6">
-        <div className="container flex flex-col items-center justify-center gap-4 md:flex-row md:justify-between">
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">© 2024 Little Accountant. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="text-sm text-gray-500 hover:underline dark:text-gray-400">
-              Terms of Service
-            </Link>
-            <Link href="/privacy" className="text-sm text-gray-500 hover:underline dark:text-gray-400">
-              Privacy Policy
-            </Link>
-          </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          Why Choose Little Accountant?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <DollarSign className="w-10 h-10 text-blue-600 mb-4" />
+              <CardTitle>Expense Tracking</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Categorize and monitor every penny with real-time
+                insights into your spending habits.
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <PieChart className="w-10 h-10 text-blue-600 mb-4" />
+              <CardTitle>Budget Planning</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Create personalized budgets that help you save more
+                and stress less.
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <TrendingUp className="w-10 h-10 text-blue-600 mb-4" />
+              <CardTitle>Financial Goals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Set and track your financial dreams, from vacations to
+                investments.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="container mx-auto px-4 py-16 bg-blue-50 rounded-2xl">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          What Our Users Say
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <Card className="border-none shadow-md">
+            <CardContent className="pt-6">
+              <p className="text-gray-600 italic">
+                “Little Accountant made budgeting so easy! I finally
+                feel in control of my money.”
+              </p>
+              <p className="mt-4 font-semibold">— Sarah M.</p>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-md">
+            <CardContent className="pt-6">
+              <p className="text-gray-600 italic">
+                “The insights are incredible. I saved hundreds just by
+                tracking my expenses.”
+              </p>
+              <p className="mt-4 font-semibold">— James T.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Security Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <Lock className="w-12 h-12 text-blue-600 mx-auto mb-6" />
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          Bank-Grade Security
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Your data is protected with industry-leading encryption,
+          ensuring your financial information stays safe and private.
+        </p>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-16 text-center bg-blue-600 text-white rounded-2xl">
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          Ready to Master Your Finances?
+        </h2>
+        <p className="text-lg mb-8 max-w-xl mx-auto">
+          Join thousands of users who trust Little Accountant to
+          simplify their financial lives.
+        </p>
+        <Button
+          size="lg"
+          variant="outline"
+          className="border-white text-black hover:bg-white hover:text-blue-600 px-8 py-3 rounded-full text-lg"
+          asChild
+        >
+          <Link href="/register">Get Started Now</Link>
+        </Button>
+      </section>
+
+      {/* Footer */}
+      <footer className="container mx-auto px-4 py-8 text-center text-gray-600">
+        <p>&copy; 2025 Little Accountant. All rights reserved.</p>
+        <div className="mt-4 flex justify-center gap-6">
+          <a href="/privacy" className="hover:text-blue-600">
+            Privacy Policy
+          </a>
+          <a href="/terms" className="hover:text-blue-600">
+            Terms of Service
+          </a>
+          <a href="/contact" className="hover:text-blue-600">
+            Contact Us
+          </a>
         </div>
       </footer>
     </div>
